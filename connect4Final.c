@@ -107,9 +107,7 @@ void play(struct stack *s, int whosShot, int gameOver)
 		int row = TRAD_ROWS;
 		int col = TRAD_COLS;	
 		takeTurns(s, whosShot, row, col, gameOver);
-		//checkForWin();
-		printf("\nWhat is gameOver inplay() in while loop %d\n", gameOver);		
-
+		//checkForWin();	
 	}
 	//sort out the winner
 	if(whosShot == 0){
@@ -136,13 +134,14 @@ void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver)
 		char validSlot = 'Y';
 		if(whosShot == 0)
 		{
-			//printf("\n");
-			printf("\nPlayer 1, please enter a column you would like you counter to drop, enter a selection between 1 and 7\n");
+			printf("\n");
+			printf("\nPlayer 1, please enter a column you would like your 'O' counter to drop, enter a selection between 1 and 7\n");
 			Sleep(2000);
 		}
 		else
 		{
-			printf("\nPlayer 2, please enter a column you would like you counter to drop, enter a selection between 1 and 7\n");
+			printf("\n");
+			printf("\nPlayer 2, please enter a column you would like your 'X' counter to drop, enter a selection between 1 and 7\n");
 			Sleep(2000);
 		}
 		
@@ -234,7 +233,6 @@ int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int game
             if(s->board[i][j] != ' ' && s->board[i][j] == playerPiece[whosShot] && s->board[i][j] == s->board[i+1][j]
                 && s->board[i][j] == s->board[i+2][j] && s->board[i][j] == s->board[i+3][j])
             {
-				printf("\nWE IN checkforWin11111111\n");
                 gameOver = 1;
                 return gameOver;
             }
@@ -244,7 +242,6 @@ int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int game
             if(s->board[i][j] != ' ' && s->board[i][j] == playerPiece[whosShot] && s->board[i][j] == s->board[i][j+1]
                 && s->board[i][j] == s->board[i][j+2] && s->board[i][j] == s->board[i][j+3])
             {
-				printf("\nWE IN checkforWin222222222\n");
                 gameOver = 1;
                 return gameOver;
             }
@@ -254,7 +251,6 @@ int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int game
             if(s->board[i][j] != ' ' && s->board[i][j] == playerPiece[whosShot] && s->board[i][j] == s->board[i+1][j+1] 
                 && s->board[i][j] == s->board[i+2][j+2] && s->board[i][j] == s->board[i+3][j+3])
             {
-				printf("\nWE IN checkforWin33333333\n");
                 gameOver = 1;
                 return gameOver;
             }
@@ -264,11 +260,9 @@ int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int game
             if(s->board[i][j] != ' ' && s->board[i][j] == playerPiece[whosShot] && s->board[i][j] == s->board[i-1][j+1]   
                 && s->board[i][j] == s->board[i-2][j+2] && s->board[i][j] == s->board[i-3][j+3])
             {
-				printf("\nWE IN checkforWin44444444\n");
                 gameOver = 1;
                 return gameOver;
             }
-    printf("\nwhat is gameOver in check for win %d\n", gameOver);
     return gameOver;
 }
 
