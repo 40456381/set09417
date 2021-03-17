@@ -74,9 +74,7 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 		gameType = 1;
 		createBoard(s);
 		renderBoard(s);
-		//renderBoard(s);
 		play(s, whosShot, gameOver);
-		//TODO CREATE GAME TURNS
 		break;
 		
 		case 2:
@@ -84,7 +82,6 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 		printf("playing selection2");
 		createBoard(s);
 		renderBoard(s);
-		//renderBoard(s);
 		play(s, whosShot, gameOver);
 		break;
 		
@@ -136,13 +133,13 @@ void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver)
 		{
 			printf("\n");
 			printf("\nPlayer 1, please enter a column you would like your 'O' counter to drop, enter a selection between 1 and 7\n");
-			Sleep(2000);
+			//Sleep(2000);
 		}
 		else
 		{
 			printf("\n");
 			printf("\nPlayer 2, please enter a column you would like your 'X' counter to drop, enter a selection between 1 and 7\n");
-			Sleep(2000);
+			//Sleep(2000);
 		}
 		
 		scanf("%i", &slot);
@@ -194,8 +191,7 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 						//terminate the loop
 						break;
 					}
-					Sleep(2000);
-					printf("\nWhat is gameOver %d\n", gameOver);
+					
 					//moves to next player
 					if (whosShot == 0){
 						whosShot = 1;
@@ -226,7 +222,6 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 
 int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot)
 {
-	printf("\nWE IN checkforWin?????????\n");
 	//Vertical Check
     for(int i = 0; i < row-3; i++)
         for(int j = 0; j < col; j++)
