@@ -133,13 +133,11 @@ void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver)
 		{
 			printf("\n");
 			printf("\nPlayer 1, please enter a column you would like your 'O' counter to drop, enter a selection between 1 and 7\n");
-			//Sleep(2000);
 		}
 		else
 		{
 			printf("\n");
 			printf("\nPlayer 2, please enter a column you would like your 'X' counter to drop, enter a selection between 1 and 7\n");
-			//Sleep(2000);
 		}
 		
 		scanf("%i", &slot);
