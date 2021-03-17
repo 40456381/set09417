@@ -1,7 +1,6 @@
 /*
  * Clark Bolan 40456381 Connect 4 C Program
  * SET09417 Algorithms & Data Structures
- * Testing GitHub push 17/03/2021
  * Happy Playing
  */
 
@@ -103,10 +102,8 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 //starts the game play
 void play(struct stack *s, int whosShot, int gameOver)
 {
-	printf("\nWhat is gameOver inplay() OUTSIDE while loop %d\n", gameOver);		
 	while(gameOver == 0)
 	{
-		printf("\nwhat is gameOver in play() 1  %d\n", gameOver);
 		int row = TRAD_ROWS;
 		int col = TRAD_COLS;	
 		takeTurns(s, whosShot, row, col, gameOver);
@@ -114,12 +111,17 @@ void play(struct stack *s, int whosShot, int gameOver)
 		printf("\nWhat is gameOver inplay() in while loop %d\n", gameOver);		
 
 	}
-	printf("\nOUTSIDE THE WHILE LOOP IN play() \n");
-	printf("\nTHE WINNER IS PLAYER %d \n", whosShot--);
+	//sort out the winner
+	if(whosShot == 0){
+		whosShot = 1;
+	}
+	else{
+		whosShot = 2;
+	}
+	printf("\nTHE WINNER IS PLAYER %d \n", whosShot);
+	//reset whosShot
+	whosShot = 0;
 	introduceGame(s, whosShot, gameType);
-	//reset who's shot
-	//whosShot = 0;
-	//TODO WINNER REPORT
 		
 }
 
