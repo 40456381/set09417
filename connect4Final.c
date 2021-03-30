@@ -16,16 +16,16 @@
 void introduceGame(struct stack *s, int whosShot, int gameType);
 void createBoard(struct stack *s);
 void renderBoard(struct stack *s);
-void play(struct stack *s, int whosShot, int gameOver, int gameType);
+int play(struct stack *s, int whosShot, int gameOver, int gameType);
 void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver, int gameType);
 void init_stack(struct stack *s);
 void push(struct stack *s, int item);
 void *pop(struct stack *s);
 int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int gameOver, char playerPiece[2], int gameType);
-void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow);
+char undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow, int gameOver, int gameType, char finshedEdit);
 void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow);
 int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot);
-void undoRedoWrapper(struct stack *s, char undo, char redo, int whosShot, int slot, int iRow, char finshedEdit);
+void undoRedoWrapper(struct stack *s, char undo, char redo, int whosShot, int slot, int iRow, char finshedEdit, int gameOver, int gameType);
 
 
 //gameOver and gameType variables initialised in global scope to allow the program to stop when game is won
@@ -98,9 +98,9 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 }
 
 //starts the game play
-void play(struct stack *s, int whosShot, int gameOver, int gameType)
+int play(struct stack *s, int whosShot, int gameOver, int gameType)
 {
-	printf("\n what is gameType %d IN PLAY----------------------->>>>>", gameType);
+	//printf("\n what is gameType %d IN PLAY----------------------->>>>>", gameType);
 	while(gameOver == 0)
 	{
 		int row = TRAD_ROWS;
@@ -119,6 +119,8 @@ void play(struct stack *s, int whosShot, int gameOver, int gameType)
 	//reset whosShot
 	whosShot = 0;
 	introduceGame(s, whosShot, gameType);
+	
+	return gameType;
 		
 }
 
@@ -127,7 +129,7 @@ void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver, in
 {
 	int slot = 0;
 	char playerPiece[2] = {'O','X'};
-	
+	//printf("\n what is takeTurns %d IN PLAY----------------------->>>>>", gameType);
 	//ask for input until valid
 	do{
 		char validSlot = 'Y';
@@ -165,7 +167,7 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 	char redo = 'N';
 	int iRow;
 	int finshedEdit = 'N';
-	printf("\n what is gameType %d ----------------------->>>>>\n", gameType);
+	printf("\n what is gameType in dropCounter %d ----------------------->>>>>\n", gameType);
 		if (gameOver == 0){
 		//this takes away 1 to deal with arrays starting at 0
 			slot --;
@@ -176,6 +178,8 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 				//checking for free area on board
 				if(s->board[i][slot] == ' ')
 				{
+					printf("\n dropCounter in loop ----------------------->>>>>\n");
+					printf("\n what is whosShot in dropCounter %d ----------------------->>>>>\n", whosShot);
 					//Comment this
 					s->board[i][slot] = playerPiece[whosShot];
 					//TODO check if won
@@ -187,22 +191,28 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 						//terminate the loop
 						break;
 					}
-					
-					//moves to next player
-					if (whosShot == 0){
-						whosShot = 1;
-					}
-					else{
-						whosShot = 0;
+					if(gameType == 1)
+					{
+						//moves to next player
+						if (whosShot == 0)
+						{
+							whosShot = 1;
+						}
+						else
+						{
+							whosShot = 0;
+						}
 					}
 					renderBoard(s);
-					//these methods are for undo redo feature game
-					if (gameType == 2){
-						printf("\n----------------------->>>>>");
-						//undoShot(s, undo, whosShot, slot, iRow);
-						//redoShot(s, redo, whosShot, slot, playerPiece, iRow);
-						undoRedoWrapper(s, undo, redo, whosShot, slot, iRow, finshedEdit);
-					}
+					if(gameType == 2)
+					{
+								//these methods are for undo redo feature game
+								printf("\nIN REDO PART----------------------->>>>>");
+								//undoShot(s, undo, whosShot, slot, iRow);
+								//redoShot(s, redo, whosShot, slot, playerPiece, iRow);
+								undoRedoWrapper(s, undo, redo, whosShot, slot, iRow, finshedEdit, gameOver, gameType);
+					}	
+					
 					play(s, whosShot, gameOver, gameType);
 				}
 				//checking if column is full
@@ -217,24 +227,39 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 	return gameOver;
 }
 
-void undoRedoWrapper(struct stack *s, char undo, char redo, int whosShot, int slot, int iRow, char finshedEdit)
+void undoRedoWrapper(struct stack *s, char undo, char redo, int whosShot, int slot, int iRow, char finshedEdit, int gameOver, int gameType)
 {
+	
 	//loop until stack is empty or player decides to finish
 	while(s->top == -1 || finshedEdit == 'N'){
 		//call undoShot
-		undoShot(s, undo, whosShot, slot, iRow);
+		printf("\n what is finshedEdit %c in undoRedoWrapper----------------------->>>>>", finshedEdit);
+		printf("\n in undoRedoWrapper ----------------------->>>>>\n");
+		printf("\n what is whosShot %d in undoRedoWrapper----------------------->>>>>", whosShot);
+		undoShot(s, undo, whosShot, slot, iRow, gameOver, gameType, finshedEdit);
 		
 	}
 	
 }
 
 //undo function
-void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow)
+char undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow, int gameOver, int gameType, char finshedEdit)
 {	
-	
+	if (whosShot == 0)
+	{
+		whosShot = 1;
+	}
+	else
+	{
+		whosShot = 0;
+	}
+	printf("\n what is whosShot %d in undoShot----------------------->>>>>", whosShot);	
+	//finshedEdit = 'N';
 	//ask player if they want to undo
 	printf("\nwould you like to undo that move, player %d? (Y/N)\n", whosShot);
+	//printf("\n what is gameType in undoShot1 %d ----------------------->>>>>\n", gameType);
 	getchar();
+	//printf("\n what is gameType in undoShot2 %d ----------------------->>>>>\n", gameType);
 	scanf("%c", &undo);
 	if (undo == 'Y')
 	{
@@ -243,7 +268,33 @@ void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow)
 		s->board[iRow][slot] = ' ';
 		printf("\nplayer %d has decided to undo last shot\n", whosShot);
 		renderBoard(s);
+		if (s->top == -1)
+		{
+			printf("\nYou can't undo anymore shots\n");
+			//let same player go again
+			whosShot--;
+			play(s, whosShot, gameOver, gameType);
+		}
+		s->board[iRow][slot] = ' ';
+		printf("\nplayer %d has decided to undo last shot\n", whosShot);
+		renderBoard(s);
+		printf("\nHave you finished undo-doing shots?\n" );
+		getchar();
+		scanf("%c", &finshedEdit);
+		if (finshedEdit == 'Y')
+		{
+			finshedEdit = 'Y';
+			printf("\nwhat is finshedEdit in IF BIT %c\n", finshedEdit);
+		}
 	}
+	else if (undo == 'N') 
+	{
+		//let next player go 
+		//whosShot++;
+		play(s, whosShot, gameOver, gameType);
+	}
+	return finshedEdit;
+	
 }
 
 //redo function
