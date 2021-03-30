@@ -16,8 +16,8 @@
 void introduceGame(struct stack *s, int whosShot, int gameType);
 void createBoard(struct stack *s);
 void renderBoard(struct stack *s);
-int play(struct stack *s, int whosShot, int gameOver, int gameType);
-void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver);
+void play(struct stack *s, int whosShot, int gameOver, int gameType);
+void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver, int gameType);
 void init_stack(struct stack *s);
 void push(struct stack *s, int item);
 void *pop(struct stack *s);
@@ -75,7 +75,7 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 		gameType = 1;
 		createBoard(s);
 		renderBoard(s);
-		play(s, whosShot, gameOver);
+		play(s, whosShot, gameOver, gameType);
 		break;
 		
 		case 2:
@@ -83,7 +83,7 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 		printf("playing selection2");
 		createBoard(s);
 		renderBoard(s);
-		play(s, whosShot, gameOver);
+		play(s, whosShot, gameOver, gameType);
 		break;
 		
 		case 3:
@@ -98,13 +98,13 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 }
 
 //starts the game play
-int play(struct stack *s, int whosShot, int gameOver, int gameType)
+void play(struct stack *s, int whosShot, int gameOver, int gameType)
 {
 	while(gameOver == 0)
 	{
 		int row = TRAD_ROWS;
 		int col = TRAD_COLS;	
-		takeTurns(s, whosShot, row, col, gameOver);
+		takeTurns(s, whosShot, row, col, gameOver, gameType);
 		//checkForWin();	
 	}
 	//sort out the winner
@@ -118,11 +118,13 @@ int play(struct stack *s, int whosShot, int gameOver, int gameType)
 	//reset whosShot
 	whosShot = 0;
 	introduceGame(s, whosShot, gameType);
+	
+	//return gameType;
 		
 }
 
 //Method that loops round until game is won
-void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver)
+void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver, int gameType)
 {
 	int slot = 0;
 	char playerPiece[2] = {'O','X'};
@@ -186,7 +188,7 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 					if (gameOver == 1){
 						renderBoard(s);
 						//get back to the play() method
-						play(s, whosShot, gameOver);
+						play(s, whosShot, gameOver, gameType);
 						//terminate the loop
 						break;
 					}
@@ -206,13 +208,13 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 						//undoShot(s, undo, whosShot, slot, iRow);
 						//redoShot(s, redo, whosShot, slot, playerPiece, iRow);
 					}
-					play(s, whosShot, gameOver);
+					play(s, whosShot, gameOver, gameType);
 				}
 				//checking if column is full
 				else if(i == 0 && s->board[i][slot] != ' ')
 				{
 					printf("\nposition is taken\n");
-					takeTurns(s, whosShot, row, col, gameOver);
+					takeTurns(s, whosShot, row, col, gameOver, gameType);
 				}
 		}
 	}
