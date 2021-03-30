@@ -16,12 +16,13 @@
 void introduceGame(struct stack *s, int whosShot, int gameType);
 void createBoard(struct stack *s);
 void renderBoard(struct stack *s);
-void play(struct stack *s, int whosShot, int gameOver);
+int play(struct stack *s, int whosShot, int gameOver, int gameType);
 void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver);
 void init_stack(struct stack *s);
 void push(struct stack *s, int item);
 void *pop(struct stack *s);
 int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int gameOver, char playerPiece[2], int gameType);
+void undoRedoWrapper (struct stack *s, char undo, char redo, int whosShot, int slot, int iRow);
 void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow);
 void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow);
 int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot);
@@ -97,7 +98,7 @@ void introduceGame(struct stack *s, int whosShot, int gameType)
 }
 
 //starts the game play
-void play(struct stack *s, int whosShot, int gameOver)
+int play(struct stack *s, int whosShot, int gameOver, int gameType)
 {
 	while(gameOver == 0)
 	{
@@ -198,10 +199,12 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 						whosShot = 0;
 					}
 					renderBoard(s);
+					printf("\nwhat is game type in dropCounter %d? (Y/N)\n", gameType);
 					//these methods are for undo redo feature game
 					if (gameType == 2){
-						undoShot(s, undo, whosShot, slot, iRow);
-						redoShot(s, redo, whosShot, slot, playerPiece, iRow);
+						undoRedoWrapper (s, undo, redo, whosShot, slot, iRow);
+						//undoShot(s, undo, whosShot, slot, iRow);
+						//redoShot(s, redo, whosShot, slot, playerPiece, iRow);
 					}
 					play(s, whosShot, gameOver);
 				}
@@ -215,6 +218,50 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 	}
 
 	return gameOver;
+}
+
+
+//wrapper method to undo and redo moves
+void undoRedoWrapper (struct stack *s, char undo, char redo, int whosShot, int slot, int iRow)
+{
+	//ask the player to undo then ask if they want to redo keeping in mind empty and full stack
+	printf("\nWould you like to undo that last move (Y/N)?\n");
+	
+}
+
+//undo function
+void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow)
+{	
+	//ask player if they want to undo
+	printf("\nwould you like to undo that move, player %d? (Y/N)\n", whosShot);
+	getchar();
+	scanf("%c", &undo);
+	if (undo == 'Y')
+	{
+		printf("\nWHAT IS undo %c\n", undo);
+		pop(s);
+		s->board[iRow][slot] = ' ';
+		printf("\nplayer %d has decided to undo last shot\n", whosShot);
+		renderBoard(s);
+	}
+}
+
+//redo function
+void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow)
+{	
+	whosShot --;
+	//ask player if they want to redo
+	printf("\nwould you like to redo that move, player %d? (Y/N)\n", whosShot);
+	getchar();
+	scanf("%c", &redo);
+	if (redo == 'Y')
+	{
+		printf("\nWHAT IS redo %c\n", redo);
+		push(s, slot);
+		s->board[iRow][slot] = playerPiece[whosShot];
+		printf("\nplayer %d has decided to redo last shot\n", whosShot);
+		renderBoard(s);
+	}
 }
 
 
@@ -280,7 +327,7 @@ void createBoard(struct stack *s)
 //renders the game board to the screen
 void renderBoard(struct stack *s)
 {
-    system("cls");
+    //system("cls");
     printf("\n");
     for(int y = 0; y < TRAD_ROWS; y++)
     {
@@ -310,40 +357,7 @@ void renderBoard(struct stack *s)
         }
 }
 
-//undo function
-void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow)
-{	
-	//ask player if they want to undo
-	printf("\nwould you like to undo that move, player %d? (Y/N)\n", whosShot);
-	getchar();
-	scanf("%c", &undo);
-	if (undo == 'Y')
-	{
-		printf("\nWHAT IS undo %c\n", undo);
-		pop(s);
-		s->board[iRow][slot] = ' ';
-		printf("\nplayer %d has decided to undo last shot\n", whosShot);
-		renderBoard(s);
-	}
-}
 
-//redo function
-void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow)
-{	
-	whosShot --;
-	//ask player if they want to redo
-	printf("\nwould you like to redo that move, player %d? (Y/N)\n", whosShot);
-	getchar();
-	scanf("%c", &redo);
-	if (redo == 'Y')
-	{
-		printf("\nWHAT IS redo %c\n", redo);
-		push(s, slot);
-		s->board[iRow][slot] = playerPiece[whosShot];
-		printf("\nplayer %d has decided to redo last shot\n", whosShot);
-		renderBoard(s);
-	}
-}
 
 /*initialise the stack
 we set the value to the top of the stack to -1 to indicate that
@@ -381,12 +395,3 @@ void *pop(struct stack *s)
     s->top--;
     return data;
 }
-
-
-
-
-
-
-
-
-
