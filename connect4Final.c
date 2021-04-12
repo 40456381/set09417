@@ -22,8 +22,8 @@ void init_stack(struct stack *s);
 void push(struct stack *s, int item);
 void *pop(struct stack *s);
 int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int gameOver, char playerPiece[2], int gameType);
-void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow);
-void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow);
+//void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow);
+//void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow);
 int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot);
 
 
@@ -198,11 +198,12 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 						whosShot = 0;
 					}
 					renderBoard(s);
+					
 					//these methods are for undo redo feature game
-					if (gameType == 2){
-						undoShot(s, undo, whosShot, slot, iRow);
-						redoShot(s, redo, whosShot, slot, playerPiece, iRow);
-					}
+					//if (gameType == 2){
+					//	undoShot(s, undo, whosShot, slot, iRow);
+					//	redoShot(s, redo, whosShot, slot, playerPiece, iRow);
+					//}
 					play(s, whosShot, gameOver);
 				}
 				//checking if column is full
@@ -280,37 +281,53 @@ void createBoard(struct stack *s)
 //renders the game board to the screen
 void renderBoard(struct stack *s)
 {
-    system("cls");
+	FILE * finout; //finout is a file pointer
+	finout = fopen("savedGame.txt", "a"); //create game recording file	
+    //system("cls");
     printf("\n");
+	fprintf(finout,"\n");
     for(int y = 0; y < TRAD_ROWS; y++)
     {
         for(int x = 0; x < TRAD_COLS; x++)
         {
             printf("----");
+			fprintf(finout, "----");
+		
         }
         printf("-\n"
                "|");
+		fprintf(finout, "-\n"
+               "|");	   
               
         for(int x = 0; x < TRAD_COLS; x++)
         {
             printf(" %c |", s->board[y][x]);
+			fprintf(finout, " %c |", s->board[y][x]);
         }
         printf("\n");
+		fprintf(finout,"\n");
     }
     
     for(int x = 0; x < TRAD_COLS; x++)
         {
             printf("----");
+			fprintf(finout,"----");
         }
         printf("-\n");
+		fprintf(finout,"-\n");
     
     for(int x = 0; x < TRAD_COLS; x++)
         {
             printf("  %x ", x+1);
+			fprintf(finout, "  %x ", x+1);
         }
+		
+	
+	fclose(finout);	
 }
 
 //undo function
+/*
 void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow)
 {	
 	//ask player if they want to undo
@@ -326,8 +343,10 @@ void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow)
 		renderBoard(s);
 	}
 }
+*/
 
 //redo function
+/*
 void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow)
 {	
 	whosShot --;
@@ -344,6 +363,7 @@ void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPie
 		renderBoard(s);
 	}
 }
+*/
 
 /*initialise the stack
 we set the value to the top of the stack to -1 to indicate that
@@ -381,12 +401,3 @@ void *pop(struct stack *s)
     s->top--;
     return data;
 }
-
-
-
-
-
-
-
-
-
