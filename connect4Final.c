@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <string.h>
 
-
 //declared constants
 #define TRAD_ROWS 6
 #define TRAD_COLS 7
@@ -16,25 +15,30 @@
 
 
 /* Function declarations */
-int introduceGame(struct stack *s, int whosShot, int gameType, FILE *finout);
+int introduceGame(struct stack *s, int whosShot, int gameType);
 void createBoard(struct stack *s);
 void renderBoard(struct stack *s, FILE *finout);
 void play(struct stack *s, int whosShot, int gameOver, FILE *finout);
 void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver, FILE *finout);
+int checkForWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot);
+int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int gameOver, char playerPiece[2], int gameType, FILE *finout);
+void replayGame(FILE *savedGame, struct stack *s, int whosShot, int gameType);
 void init_stack(struct stack *s);
 void push(struct stack *s, int item);
 void *pop(struct stack *s);
-int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int gameOver, char playerPiece[2], int gameType, FILE *finout);
+
 //void undoShot(struct stack *s, char undo, int whosShot, int slot, int iRow);
 //void redoShot(struct stack *s, char redo, int whosShot, int slot, char playerPiece[2], int iRow);
-int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot);
-void replayGame(FILE *savedGame);
+
+
 
 
 //gameOver and gameType variables initialised in global scope to allow the program to stop when game is won
 int gameOver  = 0;
 int gameType  = 0;
 char filename[30];
+
+
 
 	
 
@@ -52,31 +56,23 @@ int main (int argc, char *argv[])
 	struct stack s;
 	int whosShot = 0;
 	init_stack(&s);
-	FILE * finout; //finout is a file pointer
-	printf("Before starting the game please enter a filename for your game to save to, incase you want to rewatch it\n");
-		scanf("%30s",filename);
-		strcat(filename,".txt");
-		finout = fopen(filename, "a"); //create game recording file	
-		if (finout == NULL)
-		{
-			printf("Error opening game recording file");
-			return 1;
-		}
-	introduceGame(&s, whosShot, gameType, finout);
-	fclose(finout);
+	
+	introduceGame(&s, whosShot, gameType);
+
 }
 
 /*creates splash screen with game options, after user selects
 option switch is invoked and program branches of to that game mode*/
-int introduceGame(struct stack *s, int whosShot, int gameType, FILE *finout)
+int introduceGame(struct stack *s, int whosShot, int gameType)
 {
 	int selection;
-	
+	FILE * finout; //finout is a file pointer
+	finout = NULL;
 	printf("\nWELCOME TO CLARK'S CONNECT 4 GAME - MADE IN C\n"
 		   "-------------------------------------------------\n"
 		   "Please select from the following options\n"
 		   "-------------------------------------------------\n"
-		   "1) Traditional game board\n"
+		   "1) Traditional game\n"
 		   "2) Traditional game with undo and redo features\n"
 		   "3) Reload Game\n"
 		   "4) Quit Program\n"
@@ -89,6 +85,15 @@ int introduceGame(struct stack *s, int whosShot, int gameType, FILE *finout)
 		case 1:
 		//printf("playing selection1");
 		
+		printf("\nBefore starting the game please enter a filename for your game to save to, incase you want to replay it\nplease use the format game1, game2 etc\n");
+		scanf("%30s",filename);
+		strcat(filename,".txt");
+		finout = fopen(filename, "a"); //create game recording file	
+		if (finout == NULL)
+		{
+			printf("Error opening game recording file");
+			return 1;
+		}
 		gameType = 1;
 		createBoard(s);
 		renderBoard(s, finout);
@@ -105,38 +110,38 @@ int introduceGame(struct stack *s, int whosShot, int gameType, FILE *finout)
 		
 		case 3:
 		printf("playing selection3");
-		//replayGame(FILE savedGame);
-		FILE *savedGame = fopen("game1.txt", "r");
-		if(savedGame == NULL){
-			printf("unable to open file");
-		}
-		char line [100];
-		while (fgets(line, sizeof(line), savedGame)){
-			printf("%s", line);
-		}
+		replayGame(finout, s, whosShot,gameType);
 		break;
-		exit(0);
+		
 		
 		case 4:
 		printf("game has ended");
 		exit(0);
 		break;
 	}
+	fclose(finout);
 	return 0;
 }
-/*
-void replayGame(FILE savedGame)
+
+void replayGame(FILE *savedGame, struct stack *s, int whosShot, int gameType)
 {
-	fopen(savedGame, "r");
-	if(savedGame == NULL){
-		printf("unable to open file");
+	 
+		printf("\nPlease enter the name of the save file you wish to replay (e.g game1.txt): ");
+		scanf("%30s",filename);
+	    savedGame = fopen(filename, "r");
+		if(savedGame == NULL){
+			printf("\nunable to open file\n please enter a valid saved game file e.g game1.txt");
+			introduceGame(s, whosShot, gameType);
+		}
 		char line [100];
 		while (fgets(line, sizeof(line), savedGame)){
 			printf("%s", line);
+			Sleep(150);
 		}
-	
+		introduceGame(s, whosShot, gameType);
+		
 }
-*/
+
 //starts the game play
 void play(struct stack *s, int whosShot, int gameOver, FILE *finout)
 {
@@ -160,7 +165,7 @@ void play(struct stack *s, int whosShot, int gameOver, FILE *finout)
 	fclose(finout);
 	//reset whosShot
 	whosShot = 0;
-	introduceGame(s, whosShot, gameType, finout);
+	introduceGame(s, whosShot, gameType);
 		
 }
 
@@ -207,7 +212,7 @@ void takeTurns(struct stack *s, int whosShot, int row, int col, int gameOver, FI
     	
 }
 
-
+//places the player piece on the board
 int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int gameOver, char playerPiece[2], int gameType, FILE *finout)
 {
 	char undo = 'N';
@@ -229,7 +234,7 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 					//printf("\nWHAT IS slot %d\n", slot);
 					s->board[i][slot] = playerPiece[whosShot];
 					//TODO check if won
-					gameOver = checkforWin(s, row, col, playerPiece, gameOver, whosShot);
+					gameOver = checkForWin(s, row, col, playerPiece, gameOver, whosShot);
 					if (gameOver == 1){
 						renderBoard(s, finout);
 						//get back to the play() method
@@ -267,7 +272,7 @@ int dropCounter(struct stack *s, int whosShot, int row, int col, int slot, int g
 }
 
 
-int checkforWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot)
+int checkForWin(struct stack *s, int row, int col, char playerPiece[2], int gameOver, int whosShot)
 {
 	//Vertical Check
     for(int i = 0; i < row-3; i++)
